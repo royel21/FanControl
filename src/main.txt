@@ -1,0 +1,118 @@
+// /*
+//   Title:  ESP8266 Webserver - No Filesystem
+//   Description:  An ESP8266 webserver that hardcodes all web content and not using any file system
+//   Author: donsky
+//   For:    www.donskytech.com
+//   Date:   September 14, 2022
+// */
+
+// #include <Arduino.h>
+// #include <ESP8266WiFi.h>
+// #include <ESPAsyncTCP.h>
+// #include <ESPAsyncWebServer.h>
+// #include <LittleFS.h>
+// #include <ArduinoJson.h>
+
+// /*
+//   Replace the SSID and Password according to your wifi
+// */
+
+// // Webserver
+// AsyncWebServer server(80);
+
+
+// void notFound(AsyncWebServerRequest* request)
+// {
+//     request->send(404, "text/plain", "Not found");
+// }
+
+// void scanNetwork(AsyncWebServerRequest* request)
+// {
+//     DynamicJsonDocument doc(512);
+//     deserializeJson(doc, "[]");
+//     String list = "[";
+//     int n = WiFi.scanNetworks();
+//     const char nets[2][6] = { "net1","net2" };
+//     for (int i = 0; i < n; i++)
+//     {
+//         list += String("\"") + nets[i] + String("\"");
+//         if (i < n - 1) {
+//             list += ",";
+//         }
+//     }
+//     list += "]";
+//     String json;
+//     serializeJson(doc, json);
+//     request->send(200, "text/json", "[]");
+// }
+
+// void setup()
+// {
+//     WiFi.mode(WIFI_STA);
+//     WiFi.disconnect();
+//     WiFi.mode(WIFI_AP);
+//     WiFi.softAP("ESP-config");
+//     LittleFS.begin();
+//     // pinMode(BUILTIN_LED, OUTPUT);
+
+//     // Route for root index.html
+//     server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
+//         request->send(LittleFS, "/index.html", "text/html");
+//         });
+//     server.on("/list", HTTP_GET, scanNetwork);
+
+//     server.onNotFound(notFound);
+
+//     server.begin();
+// }
+
+// void loop()
+// {
+//     // digitalWrite(LED_BUILTIN, LOW);
+//     // int n = WiFi.scanNetworks();
+
+//     // digitalWrite(LED_BUILTIN, HIGH);
+//     // delay(1000);
+// }
+
+#include <Arduino.h>
+#include <vector>
+
+struct Inputs {
+  uint8_t pin;
+  uint8_t out;
+};
+
+std::vector<Inputs> inputs = { {D4,  0}, {D3,  D7}, {D2,  D5}, {D1,  D6} };
+std::vector<uint8_t> outs = { D5, D6, D7 };
+uint8_t state = 0;
+uint32_t lastTime = 0;
+
+void IRAM_ATTR isr() {
+  uint32_t time = millis();
+  if (time - lastTime > 100) {
+    for (auto in : inputs) {
+      if (!digitalRead(in.pin)) {
+        state = in.out;
+      }
+      if (in.out) {
+        digitalWrite(in.out, LOW);
+      }
+    }
+
+    lastTime = time;
+  }
+}
+
+void setup() {
+
+  for (auto d : inputs) {
+    pinMode(d.pin, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(d.pin), isr, FALLING);
+    if (d.out) {
+      pinMode(d.out, OUTPUT);
+    }
+  }
+}
+
+void loop() {

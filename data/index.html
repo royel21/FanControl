@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP-Wifi Portal</title>
+    <style>
+        html {
+            height: 100%;
+        }
+
+        *:not(li, h4) {
+            color: white;
+            border-radius: .25rem;
+        }
+
+        body {
+            min-height: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1rem;
+        }
+
+        form {
+            padding: 10px;
+            padding-top: 0;
+            background-color: rgb(46, 86, 138);
+            width: 80%;
+            max-width: 360px;
+        }
+
+        h4 {
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid;
+        }
+
+        .if {
+            display: flex;
+            margin-bottom: 10px;
+
+        }
+
+        label {
+            width: 70px;
+            font-weight: 600;
+        }
+
+        input {
+            outline: none;
+            display: block;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            padding: .1rem .25rem;
+            flex-grow: 1;
+        }
+
+        button {
+            cursor: pointer;
+            font-weight: 400;
+            font-size: 1rem;
+            line-height: 1.5;
+            background-color: #5a6268;
+            border: 1px solid transparent;
+            transition: .1s all ease-in-out;
+        }
+
+        button:active {
+            transform: scale(1.05);
+        }
+
+        .bt {
+            text-align: center;
+            margin: 10px;
+        }
+
+        ul:not(:empty) {
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            cursor: pointer;
+            list-style-type: none;
+            padding: 2px 5px;
+        }
+
+        li:not(:last-child) {
+            border-bottom: 1px solid;
+        }
+
+        li:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="post" class="cr">
+        <h4>Wifi Config</h4>
+        <span class="if">
+            <label>Name</label>
+            <input id="nm" type="text" maxlength="31">
+        </span>
+        <span class="if">
+            <label>Password</label>
+            <input id="pass" type="password" minlength="8" maxlength="63">
+        </span>
+        <span class="if">
+            <label>Server</label>
+            <input id="serv" maxlength="19" minlength="17">
+        </span>
+        <div class="bt">
+            <button type="submit">Save</button>
+            <button id="scn" type="button">Scan Network</button>
+        </div>
+        <ul class="cr">
+        </ul>
+    </form>
+    <script>
+        const name = document.querySelector("#nm");
+        const pass = document.querySelector("#pass");
+        const server = document.querySelector("#serv");
+        document.querySelector("form").onsubmit = async (e) => {
+            e.preventDefault();
+            if (name && pass) {
+                const result = await fetch(`/save?name=${name.value}&pass=${pass.value}&server=${server.value}`).then(r => r.text());
+                console.log("result", result);
+            }
+        }
+        const ul = document.querySelector("ul");
+        ul.onclick = (e) => {
+            if (e.target.tagName === "LI") {
+                document.querySelector("#nm").value = e.target.textContent
+            }
+        }
+        document.querySelector("#scn").onclick = async (e) => {
+            const data = await fetch("/list").then(res => res.text());
+            let list = "";
+            data.split(",").forEach(l => list += `<li>${l}</li>`);
+            ul.innerHTML = list;
+        }
+        fetch("cfg").then(r => r.text()).then(r => {
+            const data = r.split(",");
+            name.value = data[0];
+            pass.value = data[1];
+            server.value = data[2];
+        });
+    </script>
+</body>
+
+</html>
