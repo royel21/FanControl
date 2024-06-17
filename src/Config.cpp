@@ -17,7 +17,7 @@ void Config::save() {
     EEPROM.commit();
 }
 void Config::save(const String& dvn, const String& n, const String& p, const String& srv) {
-    strncpy(devname, n.c_str(), dvn.length());
+    strncpy(devname, dvn.c_str(), dvn.length());
     strncpy(wifiname, n.c_str(), n.length());
     strncpy(pass, p.c_str(), p.length());
     strncpy(server, srv.c_str(), srv.length());
