@@ -5,40 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESP-Wifi Portal</title>
+    <link rel="stylesheet" href="/index.css">
     <style>
-        html {
-            height: 100%;
-        }
-
-        *:not(li, h4) {
-            color: white;
-            border-radius: .25rem;
-        }
-
-        body {
-            min-height: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 1rem;
-        }
-
-        form {
-            padding: 10px;
-            padding-top: 0;
-            background-color: rgb(46, 86, 138);
-            width: 80%;
-            max-width: 360px;
-        }
-
-        h4 {
-            text-align: center;
-            padding-bottom: 10px;
-            border-bottom: 1px solid;
-        }
-
         .if {
             display: flex;
             margin-bottom: 10px;
@@ -61,25 +29,6 @@
             flex-grow: 1;
         }
 
-        button {
-            cursor: pointer;
-            font-weight: 400;
-            font-size: 1rem;
-            line-height: 1.5;
-            background-color: #5a6268;
-            border: 1px solid transparent;
-            transition: .1s all ease-in-out;
-        }
-
-        button:active {
-            transform: scale(1.05);
-        }
-
-        .bt {
-            text-align: center;
-            margin: 10px;
-        }
-
         ul:not(:empty) {
             margin: 0;
             padding: 0;
@@ -98,6 +47,16 @@
         li:hover {
             text-decoration: underline;
         }
+
+        #st {
+            color: firebrick;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        #st:empty {
+            display: none;
+        }
     </style>
 </head>
 
@@ -105,8 +64,12 @@
     <form action="post" class="cr">
         <h4>Wifi Config</h4>
         <span class="if">
-            <label>Name</label>
-            <input id="nm" type="text" maxlength="31">
+            <label>Device Name</label>
+            <input id="dvn" type="text" maxlength="63">
+        </span>
+        <span class="if">
+            <label>Wifi Name</label>
+            <input id="wnm" type="text" maxlength="63">
         </span>
         <span class="if">
             <label>Password</label>
@@ -114,44 +77,53 @@
         </span>
         <span class="if">
             <label>Server</label>
-            <input id="serv" maxlength="19" minlength="17">
+            <input id="serv" maxlength="23" minlength="8">
         </span>
         <div class="bt">
-            <button type="submit">Save</button>
-            <button id="scn" type="button">Scan Network</button>
+            <button class="btn" type="submit">Save</button>
+            <button class="btn" id="scn" type="button">Scan Network</button>
         </div>
-        <ul class="cr">
+        <div id="st"></div>
+        <ul class="cr" onclick="rebootap()">
         </ul>
     </form>
     <script>
-        const name = document.querySelector("#nm");
+        const devname = document.querySelector("#dvn");
+        const wifname = document.querySelector("#wnm");
         const pass = document.querySelector("#pass");
         const server = document.querySelector("#serv");
         document.querySelector("form").onsubmit = async (e) => {
             e.preventDefault();
-            if (name && pass) {
-                const result = await fetch(`/save?name=${name.value}&pass=${pass.value}&server=${server.value}`).then(r => r.text());
-                console.log("result", result);
+            if (wifname.value && pass.value) {
+                const result = await fetch(`/save?devname=${devname.value}&wname=${wifname.value}&pass=${pass.value}&server=${server.value}`).then(r => r.text());
+                document.querySelector("#st").textContent = result;
             }
         }
         const ul = document.querySelector("ul");
         ul.onclick = (e) => {
             if (e.target.tagName === "LI") {
-                document.querySelector("#nm").value = e.target.textContent
+                wifname.value = e.target.textContent
             }
         }
-        document.querySelector("#scn").onclick = async (e) => {
+
+        async function loadList() {
             const data = await fetch("/list").then(res => res.text());
             let list = "";
             data.split(",").forEach(l => list += `<li>${l}</li>`);
             ul.innerHTML = list;
         }
+
+        document.querySelector("#scn").onclick = loadList;
+
         fetch("cfg").then(r => r.text()).then(r => {
             const data = r.split(",");
-            name.value = data[0];
-            pass.value = data[1];
-            server.value = data[2];
+            devname.value = data[0];
+            wifname.value = data[1];
+            pass.value = data[2];
+            server.value = data[3];
         });
+
+        setTimeout(() => loadList, 1000);
     </script>
 </body>
 

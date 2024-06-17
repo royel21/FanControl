@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Control</title>
+    <link rel="stylesheet" href="/index.css">
+    <style>
+        #ctr-f {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+
+        .rb {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        input[type=radio] {
+            accent-color: rgb(0, 255, 0);
+        }
+
+        .btn {
+            min-width: 60px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cr">
+        <h4>Fan Control</h4>
+        <div id="ctr-f">
+            <label class="btn"><input type="radio" name="ctr" id="b0" value="0" checked onchange="stateChange(this)">
+                Off</label>
+            <label class="btn"><input type="radio" name="ctr" id="b1" value="1" onchange="stateChange(this)">
+                1st</label>
+            <label class="btn"><input type="radio" name="ctr" id="b2" value="2" onchange="stateChange(this)">
+                2nd</label>
+            <label class="btn"><input type="radio" name="ctr" id="b3" value="3" onchange="stateChange(this)">
+                3rd</label>
+        </div>
+        <div class="rb"><button class="btn" onclick="rebootap()">Reboot On Acess Point Mode</button></div>
+    </div>
+
+    <script>
+        const states = {
+            "255": 0,
+            "13": 1,
+            "14": 2,
+            "12": 3
+        }
+        fetch("/get-state").then(r => r.text()).then(r => {
+            document.querySelector("#b" + states[r]).checked = true;
+        });
+
+        fetch("/get-name").then(r => r.text()).then(r => {
+            document.querySelector(".cr h4").textContent = `Fan Control - ${r}`;
+        });
+
+        async function stateChange({ value }) {
+            await fetch(`/change-state?speed=${value}`);
+        }
+
+        function rebootap() {
+            fetch("/reboot-ap");
+        }
+    </script>
+</body>
+
+</html>

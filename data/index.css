@@ -1,0 +1,51 @@
+html {
+    height: 100%;
+}
+
+*:not(li, h4) {
+    color: white;
+    border-radius: .25rem;
+}
+
+body {
+    min-height: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+}
+
+.cr {
+    padding: 10px;
+    padding-top: 0;
+    background-color: rgb(46, 86, 138);
+    width: 80%;
+    max-width: 360px;
+}
+
+h4 {
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid;
+}
+
+.btn {
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+    background-color: #5a6268;
+    border: 1px solid transparent;
+    transition: .1s all ease-in-out;
+}
+
+.btn:active {
+    transform: scale(1.05);
+}
+
+.bt {
+    text-align: center;
+    margin: 10px;
+}

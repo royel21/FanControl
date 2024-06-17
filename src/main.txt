@@ -84,7 +84,7 @@ struct Inputs {
 };
 
 std::vector<Inputs> inputs = { {D4,  0}, {D3,  D7}, {D2,  D5}, {D1,  D6} };
-std::vector<uint8_t> outs = { D5, D6, D7 };
+std::vector<uint8_t> outs = { 0, D7, D5, D6 };
 uint8_t state = 0;
 uint32_t lastTime = 0;
 
@@ -115,4 +115,4 @@ void setup() {
   }
 }
 
-void loop() {
+void loop() {}
