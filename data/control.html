@@ -57,6 +57,7 @@
 
         fetch("/get-name").then(r => r.text()).then(r => {
             document.querySelector(".cr h4").textContent = `Fan Control - ${r}`;
+            document.querySelector("title").textContent = `Fan Control - ${r}`;
         });
 
         async function stateChange({ value }) {
