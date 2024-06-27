@@ -1,15 +1,18 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include "WManager.h"
-
-uint32_t blinkSpeed = 250;
+#include "WifiControl.h"
 
 void setup()
 {
   WRC::setupManager();
+  WRC::setupControl();
+
+  WRC::startManager();
 }
 
 void loop()
 {
-  WRC::loop();
+  WRC::loopManager();
+  WRC::loopControl();
 }

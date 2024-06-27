@@ -4,8 +4,10 @@
 constexpr uint8_t NAME_SIZE = 64;
 constexpr uint8_t PASSWORD_SIZE = 64;
 constexpr uint8_t SERVER_SIZE = 24;
+enum DTYPES { CONTROL, MONITOR };
 
 struct Config {
+    uint8_t type = CONTROL;
     char devname[NAME_SIZE] = "";
     char wifiname[NAME_SIZE] = "";
     char pass[PASSWORD_SIZE] = "";

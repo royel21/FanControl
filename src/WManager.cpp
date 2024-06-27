@@ -1,6 +1,5 @@
 #include "WManager.h"
 #include <ESP8266WiFi.h>
-#include <LittleFS.h>
 
 namespace WRC
 {
@@ -15,12 +14,10 @@ namespace WRC
     String passwd = "";
     uint8_t restart = false;
     uint32_t start = 0;
-    uint8_t state = 0;
-    uint32_t blinkSpeed = 250;
-    uint8_t currentState = 255;
+    uint32_t blinkSpeed = 1000;
     std::vector<uint8_t> outs = { 255, D7, D5, D6 };
 
-    uint8_t StatusLed = D0;
+    uint8_t LED_STATUS = D0;
 
     void scanNet() {
         tempList = "";
@@ -44,14 +41,9 @@ namespace WRC
         request->send(LittleFS, "/index.html", "text/html");
     }
 
-    void indexControl(AsyncWebServerRequest* request)
-    {
-        request->send(LittleFS, "/control.html", "text/html");
-    }
-
     void indexCSS(AsyncWebServerRequest* request)
     {
-        request->send(LittleFS, "/index.css", "text/css");
+        request->send(LittleFS, "/m-index.css", "text/css");
     }
 
     void scanNetwork(AsyncWebServerRequest* request)
@@ -74,44 +66,9 @@ namespace WRC
         request->send(200, "text/plain", config.toString());
     }
 
-    void changeState(AsyncWebServerRequest* request) {
-        int speed = request->getParam("speed")->value().toInt();
-        if (speed >= 0 && speed <= 3) {
-            config.lastState = outs[speed];
-        }
-
-        request->send(200, "text/plain", "Ok");
-    }
-
-    void getState(AsyncWebServerRequest* request) {
-        request->send(200, "text/plain", String(currentState));
-    }
-
-    void onStateChange() {
-        if (config.lastState != currentState) {
-            currentState = config.lastState;
-            for (auto nstate : outs) {
-                digitalWrite(nstate, LOW);
-            }
-            digitalWrite(currentState, HIGH);
-            config.save();
-        }
-    }
-
-    void rebootOnAP(AsyncWebServerRequest* request) {
-        config.bootAp = true;
-        config.save();
-        request->send(200, "text/plain", "Ok");
-        restart = true;
-    }
-
-    void getDevName(AsyncWebServerRequest* request) {
-        request->send(200, "text/plain", config.devname);
-    }
-
     void setupManager() {
 
-        pinMode(StatusLed, OUTPUT);
+        pinMode(LED_STATUS, OUTPUT);
         WiFi.mode(WIFI_STA);
 
         WiFi.begin(WRC::config.wifiname, WRC::config.pass);
@@ -132,33 +89,26 @@ namespace WRC
             config.bootAp = false;
             config.save();
         }
-        else {
-            blinkSpeed = 1000;
-            server.on("/", HTTP_GET, indexControl);
-            server.on("/reboot-ap", HTTP_GET, rebootOnAP);
-        }
 
-        server.on("/get-name", HTTP_GET, getDevName);
-        server.on("/index.css", HTTP_GET, indexCSS);
-        server.on("/change-state", HTTP_GET, changeState);
-        server.on("/get-state", HTTP_GET, getState);
-
-        server.onNotFound(notFound);
-        server.begin();
-
-        configControl();
+        server.on("/m-index.css", HTTP_GET, indexCSS);
     }
 
-    void loop()
+    void startManager() {
+        server.onNotFound(notFound);
+        server.begin();
+    }
+
+    uint8_t ledState = 0;
+
+    void loopManager()
     {
         if (millis() - start > blinkSpeed) {
-            state = !state;
-            digitalWrite(StatusLed, state);
+            ledState = !ledState;
+            digitalWrite(LED_STATUS, ledState);
             start = millis();
         }
 
         if (scan) scanNet();
         if (restart) ESP.restart();
-        onStateChange();
     }
 } // namespace WRC
