@@ -10,7 +10,7 @@
         .if {
             display: flex;
             margin-bottom: 10px;
-
+            position: relative;
         }
 
         label {
@@ -57,6 +57,15 @@
         #st:empty {
             display: none;
         }
+
+        #eye {
+            position: absolute;
+            top: -2px;
+            right: 5px;
+            color: black;
+            cursor: pointer;
+            user-select: none;
+        }
     </style>
 </head>
 
@@ -74,6 +83,7 @@
         <span class="if">
             <label>Password</label>
             <input id="pass" type="password" minlength="8" maxlength="63">
+            <span id="eye">&#128065</span>
         </span>
         <span class="if">
             <label>Server</label>
@@ -92,6 +102,11 @@
         const wifname = document.querySelector("#wnm");
         const pass = document.querySelector("#pass");
         const server = document.querySelector("#serv");
+        const eye = document.querySelector("#eye");
+        let showp = false;
+
+        eye.onclick = () => pass.type = pass.type.includes("pass") ? "" : "password"
+
         document.querySelector("form").onsubmit = async (e) => {
             e.preventDefault();
             if (wifname.value && pass.value) {
