@@ -17,7 +17,7 @@ namespace WRC
     uint32_t blinkSpeed = 1000;
     std::vector<uint8_t> outs = { 255, D7, D5, D6 };
 
-    uint8_t LED_STATUS = D0;
+    uint8_t LED_STATUS = LED_BUILTIN;
 
     void scanNet() {
         tempList = "";

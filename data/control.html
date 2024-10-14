@@ -5,11 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fan Control</title>
-    <link rel="stylesheet" href="/m-index.css">
+    <link rel="stylesheet" href="./m-index.css">
     <style>
         #ctr-f {
-            display: flex;
-            justify-content: space-around;
+            text-align: left;
             width: 100%;
         }
 
@@ -22,6 +21,8 @@
             accent-color: rgb(0, 255, 0);
         }
 
+        .active {}
+
         .btn {
             min-width: 60px;
         }
@@ -30,40 +31,72 @@
 
 <body>
     <div class="cr">
-        <h4>Fan Control</h4>
+        <h4></h4>
         <div id="ctr-f">
-            <label class="btn"><input type="radio" name="ctr" id="b0" value="0" checked onchange="stateChange(this)">
-                Off</label>
-            <label class="btn"><input type="radio" name="ctr" id="b1" value="1" onchange="stateChange(this)">
-                1st</label>
-            <label class="btn"><input type="radio" name="ctr" id="b2" value="2" onchange="stateChange(this)">
-                2nd</label>
-            <label class="btn"><input type="radio" name="ctr" id="b3" value="3" onchange="stateChange(this)">
-                3rd</label>
+            <span class="if"><strong>Percent <span id="perc"></span></strong></span>
+            <span class="if"><strong>Distance: <span id="disc"></span></strong></span>
+            <h5>Valor de la distancia cuando el tinaco este en el minimo</h5>
+            <span class="if">
+                <label>Min: </label>
+                <input id="min" type="min">
+            </span>
+            <h5>Valor de la distancia cuando el tinaco este lleno</h5>
+            <span class="if">
+                <label>Max: </label>
+                <input id="max" type="max" title="Valor cuando el tinaco este en el lleno">
+            </span>
         </div>
-        <div class="rb"><button class="btn" onclick="rebootap()">Reboot On Acess Point Mode</button></div>
+        <div class="rb">
+            <button class="btn" onclick="update()">save</button>
+            <button class="btn" onclick="rebootap()">Reboot On Acess Point Mode</button>
+        </div>
     </div>
 
     <script>
-        const states = {
-            "255": 0,
-            "13": 1,
-            "14": 2,
-            "12": 3
-        }
-        fetch("/get-state").then(r => r.text()).then(r => {
-            document.querySelector("#b" + states[r]).checked = true;
-        });
+
+        const mapIn = (x, min_in, max_in, min_out, max_out) => (x - min_in) * (max_out - min_out) / (max_in - min_in) + min_out
+        const disc = document.querySelector("#disc");
+        const min = document.querySelector("#min");
+        const max = document.querySelector("#max");
+        const percent = document.querySelector("#perc");
+        const MEASURE = 10;
+        let count = 0;
+        let sum = 0;
+        let minVal = 0;
+        let maxVal = 100;
+        setInterval(() => fetch("/get-state").then(r => r.text()).then(r => {
+            count++;
+            if (+r > sum) sum = +r
+
+            if (count === 3) {
+                disc.textContent = sum;
+                if (+min.value && +max.value) {
+
+                    const result = mapIn(+sum, +min.value, +max.value, 0, 100);
+                    percent.textContent = result.toFixed(1) + "%"
+                } else {
+                    percent.textContent = "Fill Min And Max"
+                }
+                count = 0;
+                sum = 0;
+            }
+        }), 500);
 
         fetch("/get-name").then(r => r.text()).then(r => {
-            document.querySelector(".cr h4").textContent = `Fan Control - ${r}`;
-            document.querySelector("title").textContent = `Fan Control - ${r}`;
+            const parts = r.split(",");
+            console.log(r)
+            if (parts.length) {
+                document.querySelector(".cr h4").textContent = `${parts[0]}`;
+                document.querySelector("title").textContent = `${parts[0]}`;
+                min.value = parts[1];
+                max.value = parts[2];
+            }
         });
 
-        async function stateChange({ value }) {
-            await fetch(`/change-state?speed=${value}`);
+        const update = async () => {
+            let result = await fetch(`/save-disc?min=${min.value}&max=${max.value}`).then(r => r.text());
+            console.log(result)
         }
-
         function rebootap() {
             fetch("/reboot-ap");
         }

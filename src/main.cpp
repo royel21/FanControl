@@ -2,7 +2,6 @@
 #include <ESP8266WiFi.h>
 #include "WManager.h"
 #include "WifiControl.h"
-#include <UltraSonic.h>
 
 void setup()
 {

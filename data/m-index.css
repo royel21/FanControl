@@ -49,3 +49,23 @@ h4 {
     text-align: center;
     margin: 10px;
 }
+.if {
+    display: flex;
+    margin-bottom: 10px;
+
+}
+label {
+    width: 70px;
+    font-weight: 600;
+}
+
+input {
+    outline: none;
+    display: block;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    padding: .1rem .25rem;
+    flex-grow: 1;
+}

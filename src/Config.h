@@ -14,6 +14,8 @@ struct Config {
     char server[SERVER_SIZE] = "";
     uint8_t lastState = 255;
     uint8_t bootAp = false;
+    uint8_t min = 0;
+    uint8_t max = 0;
 
     Config();
     void save();

@@ -1,15 +1,15 @@
 #include "WManager.h"
 #include <ESPAsyncWebServer.h>
+#include <HCSR04.h>
+
+UltraSonicDistanceSensor distanceSensor(D8, D7, 170);
+
+double distance = 0;
 
 namespace WRC
 {
     uint32_t lastTime = 0;
-    struct Inputs {
-        uint8_t pin;
-        uint8_t out;
-    };
 
-    std::vector<Inputs> inputs = { {D4,  255}, {D3,  D7}, {D2,  D5}, {D1,  D6} };
     uint8_t currentState = 255;
 
     void indexControl(AsyncWebServerRequest* request)
@@ -24,50 +24,47 @@ namespace WRC
     }
 
     void getDevName(AsyncWebServerRequest* request) {
-        request->send(200, "text/plain", config.devname);
+
+        distance = distanceSensor.measureDistanceCm();
+        String content = String(config.devname);
+        content += ",";
+        content += String(config.min);
+        content += ",";
+        content += String(config.max);
+        request->send(200, "text/plain", content);
     }
 
     void getState(AsyncWebServerRequest* request) {
-        request->send(200, "text/plain", String(currentState));
+        distance = distanceSensor.measureDistanceCm();
+        request->send(200, "text/plain", String(distance));
     }
 
-    void changeState(AsyncWebServerRequest* request) {
-        int speed = request->getParam("speed")->value().toInt();
-        if (speed >= 0 && speed <= 3) {
-            config.lastState = outs[speed];
-        }
+    void saveDisc(AsyncWebServerRequest* request) {
+        String val = request->getParam("min")->value();
+        String val2 = request->getParam("max")->value();
+        config.min = val.toInt();
+        config.max = val2.toInt();
+        config.save();
 
-        request->send(200, "text/plain", "Ok");
-    }
-
-    void IRAM_ATTR isr() {
-        uint32_t time = millis();
-        if (time - lastTime > 100) {
-            for (auto in : inputs) {
-                if (!digitalRead(in.pin)) {
-                    config.lastState = in.out;
-                }
-            }
-
-            lastTime = time;
-        }
+        String content = "save: ";
+        content += ",";
+        content += val;
+        content += ",";
+        content += val2;
+        content += ",";
+        content += String(config.min);
+        content += ",";
+        content += String(config.max);
+        request->send(200, content);
     }
 
     void setupControl() {
-        for (auto d : inputs) {
-            pinMode(d.pin, INPUT_PULLUP);
-            attachInterrupt(digitalPinToInterrupt(d.pin), isr, FALLING);
-            if (d.out) {
-                pinMode(d.out, OUTPUT);
-            }
-        }
-
         if (config.bootAp == false) {
             server.on("/", HTTP_GET, indexControl);
             server.on("/reboot-ap", HTTP_GET, rebootOnAP);
-            server.on("/change-state", HTTP_GET, changeState);
             server.on("/get-name", HTTP_GET, getDevName);
             server.on("/get-state", HTTP_GET, getState);
+            server.on("/save-disc", HTTP_GET, saveDisc);
         }
     }
 
@@ -83,6 +80,5 @@ namespace WRC
     }
 
     void loopControl() {
-        onStateChange();
     }
 }
