@@ -30,7 +30,9 @@ void Config::save(const String& dvn, const String& n, const String& p, const Str
 }
 
 String Config::toString() {
-    String content = String(devname);
+    String content = String(type);
+    content += ",";
+    content += String(devname);
     content += ",";
     content += String(wifiname);
     content += ",";

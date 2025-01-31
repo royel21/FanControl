@@ -74,6 +74,10 @@
         input[type=password] {
             padding-right: 22px;
         }
+
+        #dv {
+            display: none;
+        }
     </style>
 </head>
 
@@ -126,6 +130,7 @@
         const server = document.querySelector("#serv");
         const eye = document.querySelector("#eye");
         let showp = false;
+        let type = 2;
 
         eye.onclick = () => pass.type = pass.type.includes("pass") ? "" : "password"
 
@@ -154,10 +159,14 @@
 
         fetch("cfg").then(r => r.text()).then(r => {
             const data = r.split(",");
-            devname.value = data[0];
-            wifname.value = data[1];
-            pass.value = data[2];
-            server.value = data[3];
+            devname.value = data[1];
+            wifname.value = data[2];
+            pass.value = data[3];
+            server.value = data[4];
+
+            if (+data[0] === 1) {
+                document.querySelector("#dv").style.display = "block";
+            }
         });
 
         const states = {

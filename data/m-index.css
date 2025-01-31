@@ -66,6 +66,8 @@ h4 {
 }
 
 input[type=radio] {
+    position: relative;
+    top: 1px;
     accent-color: rgb(0, 255, 0);
 }
 
