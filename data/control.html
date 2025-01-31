@@ -5,27 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fan Control</title>
-    <link rel="stylesheet" href="/m-index.css">
-    <style>
-        #ctr-f {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-        }
-
-        .rb {
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        input[type=radio] {
-            accent-color: rgb(0, 255, 0);
-        }
-
-        .btn {
-            min-width: 60px;
-        }
-    </style>
+    <link rel="stylesheet" href="./m-index.css">
 </head>
 
 <body>
@@ -51,13 +31,14 @@
             "14": 2,
             "12": 3
         }
-        fetch("/get-state").then(r => r.text()).then(r => {
-            document.querySelector("#b" + states[r]).checked = true;
-        });
 
         fetch("/get-name").then(r => r.text()).then(r => {
             document.querySelector(".cr h4").textContent = `Fan Control - ${r}`;
             document.querySelector("title").textContent = `Fan Control - ${r}`;
+        });
+
+        fetch("/get-state").then(r => r.text()).then(r => {
+            document.querySelector("#b" + states[r]).checked = true;
         });
 
         async function stateChange({ value }) {

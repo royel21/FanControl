@@ -21,14 +21,15 @@ body {
     padding: 10px;
     padding-top: 0;
     background-color: rgb(46, 86, 138);
-    width: 80%;
-    max-width: 360px;
+    width: 95%;
+    max-width: 380px;
 }
 
 h4 {
     text-align: center;
-    padding-bottom: 10px;
     border-bottom: 1px solid;
+    padding: 5px 0px;
+    margin: 15px 0 0px 0;
 }
 
 .btn {
@@ -48,4 +49,26 @@ h4 {
 .bt {
     text-align: center;
     margin: 10px;
+}
+
+#ctr-f {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    border-radius: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid;
+}
+
+.rb {
+    margin-top: 10px;
+    text-align: center;
+}
+
+input[type=radio] {
+    accent-color: rgb(0, 255, 0);
+}
+
+#ctr-f label{
+    width: 60px;
 }

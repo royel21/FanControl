@@ -64,11 +64,11 @@ namespace WRC
 
         if (config.bootAp == false) {
             server.on("/", HTTP_GET, indexControl);
-            server.on("/reboot-ap", HTTP_GET, rebootOnAP);
-            server.on("/change-state", HTTP_GET, changeState);
-            server.on("/get-name", HTTP_GET, getDevName);
-            server.on("/get-state", HTTP_GET, getState);
         }
+        server.on("/reboot-ap", HTTP_GET, rebootOnAP);
+        server.on("/change-state", HTTP_GET, changeState);
+        server.on("/get-name", HTTP_GET, getDevName);
+        server.on("/get-state", HTTP_GET, getState);
     }
 
     void onStateChange() {

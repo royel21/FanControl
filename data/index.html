@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP-Wifi Portal</title>
-    <link rel="stylesheet" href="/m-index.css">
+    <title>Smart Wifi Portal</title>
+    <link rel="stylesheet" href="./m-index.css">
     <style>
         .if {
             display: flex;
@@ -13,12 +13,12 @@
             position: relative;
         }
 
-        label {
-            width: 70px;
+        .if label {
+            width: 95px;
             font-weight: 600;
         }
 
-        input {
+        .if input {
             outline: none;
             display: block;
             color: #495057;
@@ -66,29 +66,51 @@
             cursor: pointer;
             user-select: none;
         }
+
+        .wfh {
+            margin-bottom: 10px;
+        }
+
+        input[type=password] {
+            padding-right: 22px;
+        }
     </style>
 </head>
 
 <body>
     <form action="post" class="cr">
-        <h4>Wifi Config</h4>
-        <span class="if">
+        <h4 class="wfh">Smart Wifi Device Config</h4>
+        <div class="if">
             <label>Device Name</label>
             <input id="dvn" type="text" maxlength="63">
-        </span>
-        <span class="if">
+        </div>
+        <div class="if">
             <label>Wifi Name</label>
             <input id="wnm" type="text" maxlength="63">
-        </span>
-        <span class="if">
+        </div>
+        <div class="if">
             <label>Password</label>
             <input id="pass" type="password" minlength="8" maxlength="63">
             <span id="eye">&#128065</span>
-        </span>
-        <span class="if">
+        </div>
+        <div class="if">
             <label>Server</label>
             <input id="serv" maxlength="23" minlength="8">
-        </span>
+        </div>
+        <div id="dv">
+            <h4>Fan Control</h4>
+            <div id="ctr-f">
+                <label class="btn"><input type="radio" name="ctr" id="b0" value="0" checked
+                        onchange="stateChange(this)">
+                    Off</label>
+                <label class="btn"><input type="radio" name="ctr" id="b1" value="1" onchange="stateChange(this)">
+                    1st</label>
+                <label class="btn"><input type="radio" name="ctr" id="b2" value="2" onchange="stateChange(this)">
+                    2nd</label>
+                <label class="btn"><input type="radio" name="ctr" id="b3" value="3" onchange="stateChange(this)">
+                    3rd</label>
+            </div>
+        </div>
         <div class="bt">
             <button class="btn" type="submit">Save</button>
             <button class="btn" id="scn" type="button">Scan Network</button>
@@ -137,6 +159,21 @@
             pass.value = data[2];
             server.value = data[3];
         });
+
+        const states = {
+            "255": 0,
+            "13": 1,
+            "14": 2,
+            "12": 3
+        }
+
+        fetch("/get-state").then(r => r.text()).then(r => {
+            document.querySelector("#b" + states[r]).checked = true;
+        });
+
+        async function stateChange({ value }) {
+            await fetch(`/change-state?speed=${value}`);
+        }
 
         setTimeout(() => loadList, 1000);
     </script>
