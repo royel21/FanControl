@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Wifi Portal</title>
-    <link rel="stylesheet" href="./m-index.css">
+    <link rel="stylesheet" href="/m-index.css">
     <style>
         .if {
             display: flex;
@@ -14,8 +14,9 @@
         }
 
         .if label {
-            width: 95px;
+            min-width: 100px;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .if input {
@@ -26,7 +27,7 @@
             background-clip: padding-box;
             border: 1px solid #ced4da;
             padding: .1rem .25rem;
-            flex-grow: 1;
+            width: calc(100% - 100px);
         }
 
         ul:not(:empty) {
@@ -101,6 +102,9 @@
             <label>Server</label>
             <input id="serv" maxlength="23" minlength="8">
         </div>
+        <div>
+            <strong>Type: </strong><span id="type"></span>
+        </div>
         <div id="dv">
             <h4>Fan Control</h4>
             <div id="ctr-f">
@@ -164,9 +168,14 @@
             pass.value = data[3];
             server.value = data[4];
 
-            if (+data[0] === 1) {
+            if (+data[0] === 0) {
                 document.querySelector("#dv").style.display = "block";
             }
+
+            if (+data[0] > -1) {
+                document.querySelector("#type").textContent = +data[0] ? "Monitor" : "Control";
+            }
+            console.log(data)
         });
 
         const states = {
